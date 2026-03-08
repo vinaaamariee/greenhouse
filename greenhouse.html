@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌿 The Greenhouse</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
+
+  :root {
+    --sage: #8fad88;
+    --mint: #c8e6c0;
+    --moss: #4a7c59;
+    --leaf: #6aab78;
+    --bark: #8b6f5e;
+    --soil: #5c4033;
+    --cream: #faf6f0;
+    --petal: #f2a7bb;
+    --lavender: #c9b8e8;
+    --sun: #f7d97a;
+    --glass: rgba(255,255,255,0.55);
+    --glass-border: rgba(255,255,255,0.75);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lora', serif;
+    background: #d6ecd2;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND ── */
+  .bg {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse at 10% 0%, #b8ddb0 0%, transparent 55%),
+      radial-gradient(ellipse at 90% 5%, #cde8f5 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 100%, #c2dab8 0%, transparent 60%),
+      linear-gradient(160deg, #d4edcc 0%, #cce8f0 50%, #d8ecd4 100%);
+  }
+  .bg::after {
+    content:''; position:absolute; inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2388b880' fill-opacity='0.07'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── GREENHOUSE FRAME ── */
+  .app {
+    position: relative; z-index: 1;
+    max-width: 1200px; margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    padding: 40px 20px 30px;
+  }
+  .header-glass {
+    display: inline-block;
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 32px;
+    padding: 24px 48px;
+    box-shadow: 0 8px 32px rgba(74,124,89,0.12);
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--moss);
+    letter-spacing: -0.5px;
+  }
+  header h1 span { color: var(--leaf); font-style: italic; }
+  header p {
+    color: #6a8f72;
+    font-size: 0.95rem;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; margin: 20px 0 32px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    font-family: 'Lora', serif;
+    font-size: 0.88rem;
+    cursor: pointer;
+    border: 1.5px solid;
+    border-radius: 999px;
+    padding: 9px 22px;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 7px;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--moss);
+    border-color: var(--moss);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(74,124,89,0.3);
+  }
+  .btn-primary:hover { background: #3d6b4a; transform: translateY(-1px); }
+  .btn-secondary {
+    background: var(--glass);
+    backdrop-filter: blur(8px);
+    border-color: rgba(74,124,89,0.3);
+    color: var(--moss);
+  }
+  .btn-secondary:hover { background: rgba(200,230,192,0.7); }
+  .btn-secondary.active {
+    background: rgba(143,173,136,0.35);
+    border-color: var(--sage);
+    font-weight: 600;
+  }
+
+  /* ── SHELVES ── */
+  .greenhouse-body {
+    background: rgba(255,255,255,0.35);
+    backdrop-filter: blur(16px);
+    border: 2px solid var(--glass-border);
+    border-radius: 28px;
+    padding: 32px;
+    box-shadow:
+      0 2px 0 rgba(255,255,255,0.8) inset,
+      0 16px 48px rgba(74,124,89,0.1);
+    position: relative;
+  }
+  .greenhouse-body::before {
+    content: '';
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 2px; height: 100%;
+    background: linear-gradient(to bottom, rgba(143,173,136,0.15), rgba(143,173,136,0.4), rgba(143,173,136,0.15));
+    pointer-events: none;
+  }
+
+  .shelf-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    color: var(--bark);
+    font-style: italic;
+    margin-bottom: 14px;
+    padding-left: 4px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .shelf-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(139,111,94,0.3), transparent);
+  }
+
+  .shelf {
+    background: linear-gradient(to bottom, #c8a882, #b8956e);
+    border-radius: 8px;
+    height: 14px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 12px rgba(92,64,51,0.25), 0 1px 0 rgba(255,255,255,0.3) inset;
+    position: relative;
+  }
+  .shelf::before {
+    content: '';
+    position: absolute; bottom: -8px; left: 10px; right: 10px;
+    height: 8px;
+    background: rgba(92,64,51,0.2);
+    filter: blur(4px);
+  }
+
+  .plants-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 10px;
+    min-height: 160px;
+    align-items: flex-end;
+    padding: 0 8px;
+  }
+
+  /* ── PLANT POT ── */
+  .plant-card {
+    width: 130px;
+    display: flex; flex-direction: column; align-items: center;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+    position: relative;
+  }
+  .plant-card:hover { transform: translateY(-6px); }
+  .plant-card:hover .plant-tag { opacity: 1; transform: translateY(0); }
+
+  .plant-visual {
+    width: 100%; display: flex; flex-direction: column; align-items: center;
+  }
+
+  /* SVG plant stages */
+  .plant-svg { width: 80px; height: 90px; }
+
+  .pot-body {
+    width: 70px; height: 52px;
+    position: relative;
+    margin-top: -6px;
+  }
+  .pot-svg { width: 70px; height: 52px; }
+
+  .plant-tag {
+    background: #faf0e0;
+    border: 1px solid rgba(139,111,94,0.35);
+    border-radius: 6px;
+    padding: 5px 10px;
+    margin-top: 8px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    opacity: 0.85;
+    transition: opacity 0.2s, transform 0.2s;
+    transform: translateY(2px);
+    max-width: 130px;
+  }
+  .plant-tag .tag-title {
+    font-family: 'Lora', serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--soil);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-width: 110px;
+  }
+  .plant-tag .tag-stage {
+    font-size: 0.65rem;
+    color: var(--bark);
+    font-style: italic;
+    margin-top: 1px;
+  }
+
+  .thirsty-badge {
+    position: absolute; top: -6px; right: -6px;
+    background: #ffe0b2;
+    border: 1.5px solid #ffb74d;
+    border-radius: 50%;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    box-shadow: 0 2px 6px rgba(255,183,77,0.4);
+    animation: pulse 2s infinite;
+    z-index: 2;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-shelf {
+    width: 100%; text-align: center;
+    padding: 32px 0;
+    color: #9ab89d;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+  .empty-shelf .empty-icon { font-size: 2rem; display: block; margin-bottom: 8px; opacity: 0.5; }
+
+  /* ── MODAL OVERLAY ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(60,90,65,0.35);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: linear-gradient(145deg, #fefcf8, #f8f4ec);
+    border: 1.5px solid rgba(200,185,165,0.5);
+    border-radius: 24px;
+    padding: 36px;
+    max-width: 480px; width: 100%;
+    box-shadow: 0 24px 64px rgba(60,90,65,0.2);
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.25s;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--moss);
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+  }
+  .modal .modal-sub {
+    font-size: 0.85rem; color: #8a7a6a; font-style: italic; margin-bottom: 24px;
+  }
+
+  .form-group { margin-bottom: 18px; }
+  .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--bark);
+    margin-bottom: 6px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    font-family: 'Lora', serif;
+    font-size: 0.9rem;
+    border: 1.5px solid rgba(139,111,94,0.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.7);
+    color: var(--soil);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    border-color: var(--sage);
+    background: rgba(255,255,255,0.9);
+  }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+
+  .color-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .color-swatch {
+    width: 28px; height: 28px; border-radius: 50%;
+    cursor: pointer; border: 2.5px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .color-swatch:hover { transform: scale(1.15); }
+  .color-swatch.selected { border-color: var(--moss); }
+
+  .modal-actions {
+    display: flex; gap: 10px; justify-content: flex-end;
+    margin-top: 24px;
+  }
+  .btn-danger {
+    font-family: 'Lora', serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    background: none;
+    border: 1.5px solid rgba(180,70,70,0.3);
+    color: #b04444;
+    border-radius: 999px;
+    padding: 9px 20px;
+    transition: all 0.2s;
+    margin-right: auto;
+  }
+  .btn-danger:hover { background: rgba(180,70,70,0.08); }
+
+  /* ── DETAIL MODAL ── */
+  .detail-plant { text-align: center; margin-bottom: 24px; }
+  .detail-plant svg { width: 100px; height: 110px; }
+
+  .progress-bar-wrap {
+    background: rgba(143,173,136,0.2);
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+    margin: 8px 0 4px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--leaf), var(--moss));
+    border-radius: 999px;
+    transition: width 0.6s ease;
+  }
+  .progress-label {
+    font-size: 0.75rem; color: var(--bark); font-style: italic;
+    text-align: right;
+  }
+
+  .update-list {
+    list-style: none;
+    margin-top: 12px;
+    max-height: 160px;
+    overflow-y: auto;
+  }
+  .update-list li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(139,111,94,0.12);
+    font-size: 0.85rem;
+    color: var(--soil);
+  }
+  .update-list li .u-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--leaf); flex-shrink: 0; margin-top: 5px;
+  }
+  .update-list li .u-date {
+    font-size: 0.72rem; color: var(--bark); white-space: nowrap; margin-top: 2px;
+  }
+
+  .shelf-select-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+  }
+  .shelf-btn {
+    font-family: 'Lora', serif;
+    font-size: 0.82rem;
+    border: 1.5px solid rgba(139,111,94,0.25);
+    border-radius: 8px;
+    padding: 8px 6px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.5);
+    color: var(--soil);
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .shelf-btn:hover, .shelf-btn.active {
+    background: rgba(200,230,192,0.6);
+    border-color: var(--sage);
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .stat-pill {
+    background: var(--glass);
+    backdrop-filter: blur(8px);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.82rem;
+    color: var(--moss);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .stat-pill strong { font-weight: 600; }
+
+  /* ── WATER ANIMATION ── */
+  @keyframes water-drop {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(30px) scale(0.4); }
+  }
+  .water-drop {
+    position: absolute;
+    font-size: 20px;
+    pointer-events: none;
+    animation: water-drop 0.8s ease forwards;
+    z-index: 50;
+  }
+
+  /* ── GROW ANIMATION ── */
+  @keyframes grow-bounce {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.12); }
+    70% { transform: scale(0.96); }
+    100% { transform: scale(1); }
+  }
+  .growing { animation: grow-bounce 0.6s ease; }
+
+  /* ── SEARCH ── */
+  .search-wrap {
+    position: relative; max-width: 280px;
+  }
+  .search-wrap input {
+    font-family: 'Lora', serif;
+    font-size: 0.88rem;
+    border: 1.5px solid rgba(74,124,89,0.25);
+    border-radius: 999px;
+    padding: 9px 18px 9px 36px;
+    background: var(--glass);
+    backdrop-filter: blur(8px);
+    color: var(--soil);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--sage); }
+  .search-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--sage); font-size: 15px; pointer-events: none;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(143,173,136,0.4); border-radius: 3px; }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--moss);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::before { content: ''; display: block; width: 4px; height: 18px; background: var(--leaf); border-radius: 2px; }
+
+  /* roof arch decoration */
+  .roof {
+    display: flex; justify-content: center; margin-bottom: -2px;
+  }
+  .roof svg { width: 100%; max-width: 900px; }
+
+  .confetti-pop {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    pointer-events: none; z-index: 200;
+    font-size: 2.5rem;
+    animation: confetti 1.2s ease forwards;
+  }
+  @keyframes confetti {
+    0% { opacity: 1; transform: translate(-50%,-50%) scale(0.5); }
+    50% { opacity: 1; transform: translate(-50%,-120%) scale(1.3); }
+    100% { opacity: 0; transform: translate(-50%,-200%) scale(0.8); }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+
+<div class="app">
+  <!-- HEADER -->
+  <header>
+    <div class="header-glass">
+      <h1>🌿 The <span>Greenhouse</span></h1>
+      <p>Tend your projects like plants — water them, watch them grow.</p>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <div class="stats-bar" id="statsBar"></div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="openNewPlant()">＋ Plant a Seed</button>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search plants…" id="searchInput" oninput="renderAll()">
+    </div>
+    <button class="btn btn-secondary" id="filterAll" onclick="setFilter('all')">All</button>
+    <button class="btn btn-secondary" id="filterThirsty" onclick="setFilter('thirsty')">💧 Thirsty</button>
+    <button class="btn btn-secondary" id="filterBlooming" onclick="setFilter('blooming')">🌸 Blooming</button>
+  </div>
+
+  <!-- GREENHOUSE BODY -->
+  <div class="greenhouse-body" id="greenhouseBody">
+    <!-- shelves rendered by JS -->
+  </div>
+</div>
+
+<!-- ── NEW / EDIT MODAL ── -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h2 id="editModalTitle">Plant a New Seed</h2>
+    <p class="modal-sub" id="editModalSub">Give your project a home in the greenhouse.</p>
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="f_name" placeholder="e.g. Summer Novel, Fitness Goals…">
+    </div>
+    <div class="form-group">
+      <label>Description / Note</label>
+      <textarea id="f_desc" placeholder="What is this plant about?"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Shelf / Category</label>
+      <div class="shelf-select-grid" id="shelfGrid"></div>
+    </div>
+    <div class="form-group">
+      <label>Pot Color</label>
+      <div class="color-row" id="colorRow"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger" id="deletePlantBtn" onclick="deletePlant()" style="display:none">🗑 Remove</button>
+      <button class="btn btn-secondary" onclick="closeModal('editModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePlant()">🌱 Plant it</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DETAIL MODAL ── -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="detail-plant" id="detailPlantVis"></div>
+    <h2 id="detailName"></h2>
+    <p class="modal-sub" id="detailShelf"></p>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="detailProgress"></div>
+    </div>
+    <p class="progress-label" id="detailProgressLabel"></p>
+    <p style="font-size:0.88rem;color:#6a5c4e;margin:12px 0 6px" id="detailDesc"></p>
+    <div class="form-group" style="margin-top:16px">
+      <label>Water this plant — add an update</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="updateInput" placeholder="e.g. Finished chapter 3…" style="flex:1">
+        <button class="btn btn-primary" style="padding:9px 16px" onclick="addUpdate()">💧</button>
+      </div>
+    </div>
+    <ul class="update-list" id="updateList"></ul>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-secondary" onclick="openEditFromDetail()">✏️ Edit</button>
+      <button class="btn btn-primary" onclick="closeModal('detailModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA MODEL
+// ─────────────────────────────────────────────
+const SHELVES = ['🌞 Sunny Shelf','🌙 Moon Corner','🌧 Rain Shelf','🪴 Propagation','🌺 Bloom Bench','📦 Storage'];
+const POT_COLORS = ['#d4845a','#c97b8a','#9b82c2','#6aab78','#5b9ec9','#d4a85a','#a87c6d','#7c9ea8'];
+const STAGES = ['Seed','Sprout','Seedling','Young Plant','Mature','Blooming'];
+
+let plants = JSON.parse(localStorage.getItem('gh_plants') || '[]');
+let editingId = null;
+let activeFilter = 'all';
+let detailId = null;
+
+function save() { localStorage.setItem('gh_plants', JSON.stringify(plants)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+function getStage(updates, created) {
+  const age = Math.floor((Date.now() - created) / (1000*60*60*24));
+  const n = updates.length;
+  if (n === 0 && age < 2) return 0;
+  if (n < 2) return 1;
+  if (n < 5) return 2;
+  if (n < 10) return 3;
+  if (n < 18) return 4;
+  return 5;
+}
+
+function isThirsty(plant) {
+  if (!plant.updates.length) {
+    return (Date.now() - plant.created) > 3*24*60*60*1000;
+  }
+  const last = Math.max(...plant.updates.map(u=>u.ts));
+  return (Date.now() - last) > 3*24*60*60*1000;
+}
+
+// ─────────────────────────────────────────────
+// SVG PLANT DRAWING
+// ─────────────────────────────────────────────
+function plantSVG(stage, color, thirsty, size=80) {
+  const s = size; const h = Math.round(s*1.1);
+  const sat = thirsty ? '60%' : '100%';
+  const c1 = thirsty ? '#a8c4a0' : '#6aab78';
+  const c2 = thirsty ? '#8fa888' : '#4a7c59';
+  const c3 = thirsty ? '#c8d8c0' : '#9fcc88';
+
+  const stages = [
+    // 0 - Seed
+    `<ellipse cx="${s/2}" cy="${h-14}" rx="9" ry="7" fill="${c2}" opacity="0.8"/>
+     <ellipse cx="${s/2}" cy="${h-16}" rx="6" ry="5" fill="${c1}"/>`,
+    // 1 - Sprout
+    `<line x1="${s/2}" y1="${h-12}" x2="${s/2}" y2="${h-38}" stroke="${c2}" stroke-width="2.5" stroke-linecap="round"/>
+     <ellipse cx="${s/2-10}" cy="${h-40}" rx="10" ry="7" fill="${c1}" transform="rotate(-30,${s/2-10},${h-40})"/>
+     <ellipse cx="${s/2+10}" cy="${h-42}" rx="10" ry="7" fill="${c3}" transform="rotate(20,${s/2+10},${h-42})"/>`,
+    // 2 - Seedling
+    `<line x1="${s/2}" y1="${h-12}" x2="${s/2}" y2="${h-52}" stroke="${c2}" stroke-width="2.5" stroke-linecap="round"/>
+     <ellipse cx="${s/2-14}" cy="${h-44}" rx="14" ry="9" fill="${c1}" transform="rotate(-25,${s/2-14},${h-44})"/>
+     <ellipse cx="${s/2+14}" cy="${h-48}" rx="14" ry="9" fill="${c3}" transform="rotate(20,${s/2+14},${h-48})"/>
+     <ellipse cx="${s/2}" cy="${h-56}" rx="11" ry="8" fill="${c1}"/>`,
+    // 3 - Young plant
+    `<line x1="${s/2}" y1="${h-12}" x2="${s/2}" y2="${h-62}" stroke="${c2}" stroke-width="3" stroke-linecap="round"/>
+     <line x1="${s/2}" y1="${h-42}" x2="${s/2-18}" y2="${h-54}" stroke="${c2}" stroke-width="2"/>
+     <line x1="${s/2}" y1="${h-48}" x2="${s/2+18}" y2="${h-58}" stroke="${c2}" stroke-width="2"/>
+     <ellipse cx="${s/2-22}" cy="${h-57}" rx="15" ry="10" fill="${c3}" transform="rotate(-15,${s/2-22},${h-57})"/>
+     <ellipse cx="${s/2+22}" cy="${h-61}" rx="15" ry="10" fill="${c1}" transform="rotate(15,${s/2+22},${h-61})"/>
+     <ellipse cx="${s/2}" cy="${h-68}" rx="13" ry="10" fill="${c3}"/>`,
+    // 4 - Mature
+    `<line x1="${s/2}" y1="${h-12}" x2="${s/2}" y2="${h-68}" stroke="${c2}" stroke-width="3.5" stroke-linecap="round"/>
+     <ellipse cx="${s/2}" cy="${h-62}" rx="26" ry="18}" fill="${c1}" opacity="0.9"/>
+     <ellipse cx="${s/2-18}" cy="${h-52}" rx="18" ry="12" fill="${c3}" transform="rotate(-30,${s/2-18},${h-52})"/>
+     <ellipse cx="${s/2+18}" cy="${h-56}" rx="18" ry="12" fill="${c2}" transform="rotate(25,${s/2+18},${h-56})"/>
+     <ellipse cx="${s/2}" cy="${h-74}" rx="16" ry="11" fill="${c3}"/>
+     <ellipse cx="${s/2-8}" cy="${h-65}" rx="14" ry="9" fill="${c1}" transform="rotate(-10,${s/2-8},${h-65})"/>`,
+    // 5 - Blooming
+    `<line x1="${s/2}" y1="${h-12}" x2="${s/2}" y2="${h-66}" stroke="${c2}" stroke-width="4" stroke-linecap="round"/>
+     <ellipse cx="${s/2}" cy="${h-58}" rx="24" ry="16" fill="${c1}" opacity="0.85"/>
+     <ellipse cx="${s/2-20}" cy="${h-50}" rx="16" ry="11" fill="${c3}" transform="rotate(-25,${s/2-20},${h-50})"/>
+     <ellipse cx="${s/2+20}" cy="${h-54}" rx="16" ry="11" fill="${c2}" transform="rotate(20,${s/2+20},${h-54})"/>
+     <circle cx="${s/2}" cy="${h-78}" r="9" fill="#f2a7bb"/>
+     <circle cx="${s/2-8}" cy="${h-75}" r="7" fill="#f7d97a"/>
+     <circle cx="${s/2+8}" cy="${h-76}" r="7" fill="#c9b8e8"/>
+     <circle cx="${s/2}" cy="${h-73}" r="5" fill="#fff" opacity="0.7"/>
+     <circle cx="${s/2-14}" cy="${h-68}" r="6" fill="#f2a7bb" opacity="0.8"/>
+     <circle cx="${s/2+14}" cy="${h-70}" r="6" fill="#f7d97a" opacity="0.8"/>`
+  ];
+
+  return `<svg viewBox="0 0 ${s} ${h}" width="${s}" height="${h}" xmlns="http://www.w3.org/2000/svg" style="filter:saturate(${sat})">
+    ${stages[Math.min(stage, 5)]}
+  </svg>`;
+}
+
+function potSVG(color, size=70) {
+  const w=size, h=Math.round(size*0.74);
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="8" y="0" width="${w-16}" height="10" rx="4" fill="${color}" opacity="0.9"/>
+    <path d="M12 10 L${w-12} 10 L${w-18} ${h} L18 ${h} Z" fill="${color}"/>
+    <path d="M12 10 L${w-12} 10 L${w-18} ${h} L18 ${h} Z" fill="rgba(255,255,255,0.1)"/>
+    <ellipse cx="${w/2}" cy="10" rx="${(w-16)/2}" ry="5" fill="${color}" opacity="0.7"/>
+    <path d="M20 24 Q${w/2} 28 ${w-20} 24" stroke="rgba(255,255,255,0.25)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M12 10 L16 10 L22 ${h} L18 ${h} Z" fill="rgba(255,255,255,0.08)"/>
+  </svg>`;
+}
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function renderAll() {
+  renderStats();
+  renderShelves();
+}
+
+function renderStats() {
+  const total = plants.length;
+  const thirsty = plants.filter(isThirsty).length;
+  const blooming = plants.filter(p => getStage(p.updates, p.created) === 5).length;
+  const el = document.getElementById('statsBar');
+  el.innerHTML = `
+    <div class="stat-pill">🌿 <strong>${total}</strong> plants</div>
+    <div class="stat-pill">💧 <strong>${thirsty}</strong> need water</div>
+    <div class="stat-pill">🌸 <strong>${blooming}</strong> blooming</div>
+  `;
+}
+
+function setFilter(f) {
+  activeFilter = f;
+  ['All','Thirsty','Blooming'].forEach(x => {
+    document.getElementById('filter'+x)?.classList.toggle('active', f === x.toLowerCase());
+  });
+  renderAll();
+}
+
+function renderShelves() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const body = document.getElementById('greenhouseBody');
+  body.innerHTML = '';
+
+  SHELVES.forEach(shelfName => {
+    let shelfPlants = plants.filter(p => p.shelf === shelfName);
+    if (query) shelfPlants = shelfPlants.filter(p => p.name.toLowerCase().includes(query) || (p.desc||'').toLowerCase().includes(query));
+    if (activeFilter === 'thirsty') shelfPlants = shelfPlants.filter(isThirsty);
+    if (activeFilter === 'blooming') shelfPlants = shelfPlants.filter(p => getStage(p.updates, p.created) === 5);
+
+    if (shelfPlants.length === 0 && query) return;
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'shelf-label';
+    labelEl.textContent = shelfName;
+    body.appendChild(labelEl);
+
+    const row = document.createElement('div');
+    row.className = 'plants-row';
+
+    if (shelfPlants.length === 0) {
+      row.innerHTML = `<div class="empty-shelf"><span class="empty-icon">🌱</span>No plants here yet — add one!</div>`;
+    } else {
+      shelfPlants.forEach(plant => {
+        const stage = getStage(plant.updates, plant.created);
+        const thirsty = isThirsty(plant);
+        const card = document.createElement('div');
+        card.className = 'plant-card';
+        card.id = 'plant_' + plant.id;
+        card.setAttribute('onclick', `openDetail('${plant.id}')`);
+        card.innerHTML = `
+          ${thirsty ? `<div class="thirsty-badge" title="Needs water!">💧</div>` : ''}
+          <div class="plant-visual">
+            ${plantSVG(stage, plant.color, thirsty)}
+            ${potSVG(plant.color)}
+          </div>
+          <div class="plant-tag">
+            <div class="tag-title">${escHtml(plant.name)}</div>
+            <div class="tag-stage">${STAGES[stage]}</div>
+          </div>
+        `;
+        row.appendChild(card);
+      });
+    }
+    body.appendChild(row);
+
+    const shelf = document.createElement('div');
+    shelf.className = 'shelf';
+    body.appendChild(shelf);
+  });
+}
+
+function escHtml(t) {
+  return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─────────────────────────────────────────────
+// NEW / EDIT PLANT
+// ─────────────────────────────────────────────
+let selectedShelf = SHELVES[0];
+let selectedColor = POT_COLORS[0];
+
+function openNewPlant() {
+  editingId = null;
+  selectedShelf = SHELVES[0];
+  selectedColor = POT_COLORS[0];
+  document.getElementById('f_name').value = '';
+  document.getElementById('f_desc').value = '';
+  document.getElementById('editModalTitle').textContent = 'Plant a New Seed';
+  document.getElementById('editModalSub').textContent = 'Give your project a home in the greenhouse.';
+  document.getElementById('deletePlantBtn').style.display = 'none';
+  document.querySelector('#editModal .btn-primary').textContent = '🌱 Plant it';
+  buildShelfGrid();
+  buildColorRow();
+  openModal('editModal');
+}
+
+function openEditPlant(id) {
+  const p = plants.find(x=>x.id===id);
+  if (!p) return;
+  editingId = id;
+  selectedShelf = p.shelf;
+  selectedColor = p.color;
+  document.getElementById('f_name').value = p.name;
+  document.getElementById('f_desc').value = p.desc||'';
+  document.getElementById('editModalTitle').textContent = 'Tend This Plant';
+  document.getElementById('editModalSub').textContent = 'Update the details for your plant.';
+  document.getElementById('deletePlantBtn').style.display = 'inline-flex';
+  document.querySelector('#editModal .btn-primary').textContent = '💾 Save Changes';
+  buildShelfGrid();
+  buildColorRow();
+  openModal('editModal');
+}
+
+function buildShelfGrid() {
+  const grid = document.getElementById('shelfGrid');
+  grid.innerHTML = SHELVES.map(s =>
+    `<button class="shelf-btn ${s===selectedShelf?'active':''}" onclick="selectShelf('${s.replace(/'/g,"\\'")}')">${s}</button>`
+  ).join('');
+}
+
+function selectShelf(s) {
+  selectedShelf = s;
+  buildShelfGrid();
+}
+
+function buildColorRow() {
+  const row = document.getElementById('colorRow');
+  row.innerHTML = POT_COLORS.map(c =>
+    `<div class="color-swatch ${c===selectedColor?'selected':''}" style="background:${c}" onclick="selectColor('${c}')"></div>`
+  ).join('');
+}
+
+function selectColor(c) {
+  selectedColor = c;
+  buildColorRow();
+}
+
+function savePlant() {
+  const name = document.getElementById('f_name').value.trim();
+  if (!name) { document.getElementById('f_name').focus(); return; }
+  const desc = document.getElementById('f_desc').value.trim();
+
+  if (editingId) {
+    const p = plants.find(x=>x.id===editingId);
+    if (p) { p.name=name; p.desc=desc; p.shelf=selectedShelf; p.color=selectedColor; }
+  } else {
+    plants.push({ id:uid(), name, desc, shelf:selectedShelf, color:selectedColor, created:Date.now(), updates:[] });
+  }
+  save(); renderAll();
+  closeModal('editModal');
+  if (!editingId) showConfetti('🌱');
+}
+
+function deletePlant() {
+  if (!editingId) return;
+  if (!confirm('Remove this plant from the greenhouse?')) return;
+  plants = plants.filter(p=>p.id!==editingId);
+  save(); renderAll();
+  closeModal('editModal');
+}
+
+// ─────────────────────────────────────────────
+// DETAIL MODAL
+// ─────────────────────────────────────────────
+function openDetail(id) {
+  detailId = id;
+  const p = plants.find(x=>x.id===id);
+  if (!p) return;
+  const stage = getStage(p.updates, p.created);
+  const thirsty = isThirsty(p);
+  const pct = Math.round((stage/5)*100);
+
+  document.getElementById('detailPlantVis').innerHTML =
+    plantSVG(stage, p.color, thirsty, 100) + potSVG(p.color, 80);
+  document.getElementById('detailName').textContent = p.name;
+  document.getElementById('detailShelf').textContent = `${p.shelf} · ${STAGES[stage]}`;
+  document.getElementById('detailProgress').style.width = pct+'%';
+  document.getElementById('detailProgressLabel').textContent = `${pct}% grown — ${p.updates.length} water${p.updates.length!==1?'s':''}`;
+  document.getElementById('detailDesc').textContent = p.desc || 'No description yet.';
+  document.getElementById('updateInput').value = '';
+  renderUpdateList(p);
+  openModal('detailModal');
+}
+
+function renderUpdateList(p) {
+  const ul = document.getElementById('updateList');
+  if (!p.updates.length) {
+    ul.innerHTML = '<li style="color:#9ab89d;font-style:italic"><span class="u-dot" style="background:#c8e6c0"></span>No updates yet — water this plant!</li>';
+    return;
+  }
+  ul.innerHTML = [...p.updates].reverse().map(u =>
+    `<li><span class="u-dot"></span><span>${escHtml(u.text)}</span><span class="u-date" style="margin-left:auto">${fmtDate(u.ts)}</span></li>`
+  ).join('');
+}
+
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function addUpdate() {
+  const txt = document.getElementById('updateInput').value.trim();
+  if (!txt) return;
+  const p = plants.find(x=>x.id===detailId);
+  if (!p) return;
+  const prevStage = getStage(p.updates, p.created);
+  p.updates.push({ ts: Date.now(), text: txt });
+  document.getElementById('updateInput').value = '';
+  const newStage = getStage(p.updates, p.created);
+  save(); renderAll();
+  openDetail(detailId);
+  // water animation
+  waterDrop();
+  if (newStage > prevStage) setTimeout(()=>showConfetti(newStage===5?'🌸':'🌿'), 400);
+  // grow bounce on card
+  setTimeout(()=>{
+    const card = document.getElementById('plant_'+p.id);
+    if (card) { card.classList.add('growing'); setTimeout(()=>card.classList.remove('growing'),700); }
+  }, 200);
+}
+
+function openEditFromDetail() {
+  closeModal('detailModal');
+  setTimeout(()=>openEditPlant(detailId), 200);
+}
+
+// ─────────────────────────────────────────────
+// ANIMATIONS
+// ─────────────────────────────────────────────
+function waterDrop() {
+  const drop = document.createElement('div');
+  drop.className = 'water-drop';
+  drop.textContent = '💧';
+  const modal = document.querySelector('#detailModal .modal');
+  if (!modal) return;
+  const btn = document.querySelector('#detailModal .btn-primary[onclick="addUpdate()"]');
+  drop.style.left = '50%'; drop.style.top = '40%'; drop.style.position='absolute';
+  modal.style.position='relative';
+  modal.appendChild(drop);
+  setTimeout(()=>drop.remove(), 900);
+}
+
+function showConfetti(emoji) {
+  const el = document.createElement('div');
+  el.className = 'confetti-pop';
+  el.textContent = emoji;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 1300);
+}
+
+// ─────────────────────────────────────────────
+// MODAL HELPERS
+// ─────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) closeModal(ov.id); });
+});
+
+// ─────────────────────────────────────────────
+// SEED DATA (if empty)
+// ─────────────────────────────────────────────
+function seedDemo() {
+  if (plants.length > 0) return;
+  const now = Date.now();
+  plants = [
+    { id:uid(), name:'Summer Novel', desc:'Writing a cozy mystery set in a lakeside cottage.', shelf:SHELVES[0], color:POT_COLORS[2], created: now - 10*86400000,
+      updates: [{ts:now-8*86400000,text:'Outlined all 12 chapters'},{ts:now-5*86400000,text:'Wrote chapter 1 & 2'},{ts:now-3*86400000,text:'Completed chapter 3'},{ts:now-86400000,text:'Added backstory for the detective'},{ts:now-3600000,text:'Chapter 4 first draft done'}]},
+    { id:uid(), name:'Fitness Journey', desc:'Daily movement & nutrition tracking.', shelf:SHELVES[1], color:POT_COLORS[0], created: now - 20*86400000,
+      updates: [{ts:now-18*86400000,text:'Started 10k steps/day'},{ts:now-14*86400000,text:'Hit 7-day streak!'},{ts:now-10*86400000,text:'Added morning yoga'},{ts:now-6*86400000,text:'First 5k run complete'},{ts:now-3*86400000,text:'New personal best: 8min/km'},{ts:now-86400000*9,text:'Meal prepped for the week'}]},
+    { id:uid(), name:'Learn Pottery', desc:'Wheel-throwing classes every Saturday.', shelf:SHELVES[0], color:POT_COLORS[3], created: now - 30*86400000,
+      updates: [{ts:now-28*86400000,text:'First class — made a wonky bowl'},{ts:now-20*86400000,text:'Centered clay properly!'},{ts:now-13*86400000,text:'Finished a mug'}]},
+    { id:uid(), name:'Garden Journal', desc:'Tracking my balcony herb garden.', shelf:SHELVES[3], color:POT_COLORS[4], created: now - 4*86400000, updates:[]},
+  ];
+  save();
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+seedDemo();
+renderAll();
+</script>
+</body>
+</html>
